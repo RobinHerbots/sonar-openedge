@@ -19,7 +19,10 @@
  */
 package org.sonar.plugins.openedge.foundation;
 
+import java.io.File;
+
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.plugins.openedge.utils.TestProjectSensorContext;
 import org.testng.Assert;
@@ -33,6 +36,15 @@ public class InputFileUtilsTest {
     SensorContextTester context = TestProjectSensorContext.createContext();
     InputFile f1 = context.fileSystem().inputFile(context.fileSystem().predicates().hasFilename("test1.p"));
     Assert.assertEquals(InputFileUtils.getFile(f1), f1.file());
-    Assert.assertEquals(InputFileUtils.getRelativePath(f1, context.fileSystem()), f1.relativePath());
+    Assert.assertEquals(InputFileUtils.getRelativePath(f1, context.fileSystem()), TestProjectSensorContext.FILE1);
   }
+
+  @Test
+  public void testDifferentRoot() throws Exception {
+    // In SonarLint, 'src' directory can be a linked folder pointing at another drive
+    SensorContextTester context = TestProjectSensorContext.createContext();
+    InputFile f1 = context.fileSystem().inputFile(context.fileSystem().predicates().hasFilename("test1.p"));
+    Assert.assertEquals(InputFileUtils.getRelativePath(f1, new DefaultFileSystem(new File("Z:\\src"))), TestProjectSensorContext.FILE1);
+  }
+
 }
