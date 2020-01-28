@@ -233,6 +233,7 @@ public class ParseUnit {
     TreeParser parser = new TreeParser(support, session);
     walker.walk(parser, tree);
     rootScope = parser.getRootScope();
+    finalizeXrefInfo();
   }
 
   public void attachXref(Document doc) {
@@ -241,13 +242,12 @@ public class ParseUnit {
 
   public void attachXref(CrossReference xref) {
     this.xref = xref;
-    if (xref == null)
-      return;
-    attachXrefToTreeParser(getTopNode(), xref);
   }
 
-  public static void attachXrefToTreeParser(ProgramRootNode root, CrossReference xref) {
-    List<JPNode> recordNodes = root.query(ABLNodeType.RECORD_NAME);
+  private void finalizeXrefInfo() {
+    if ((topNode == null) || (xref == null))
+      return;
+    List<JPNode> recordNodes = topNode.query(ABLNodeType.RECORD_NAME);
     for (Source src : xref.getSource()) {
       File srcFile = new File(src.getFileName());
       for (Reference ref : src.getReference()) {
